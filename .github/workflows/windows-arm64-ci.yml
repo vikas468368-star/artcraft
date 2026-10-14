@@ -1,0 +1,59 @@
+
+name: Windows ARM64 Build Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows-arm64:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ARM64 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-pc-windows-msvc
+
+      - name: Install Rust build dependencies
+        shell: cmd
+        run: |
+          choco install cmake -y
+          choco install strawberryperl -y
+          choco install pkgconfiglite -y
+          choco install llvm -y
+          choco install nasm -y
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        shell: pwsh
+        run: |
+          $env:NODE_OPTIONS = "--max-old-space-size=8192"
+          npx nx run artcraft:build
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+      - name: Build Windows ARM64 application
+        working-directory: crates/desktop/artcraft
+        env:
+          SQLX_OFFLINE: "true"
+          RUSTFLAGS: "-C target-feature=+crt-static"
+        run: cargo build --release --target aarch64-pc-windows-msvc
