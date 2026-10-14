@@ -14,22 +14,34 @@ jobs:
   publish-artcraft-windows:
     permissions:
       contents: write
+    
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Windows builds
+          # Existing Windows x64 build
           - platform: 'windows-latest'
+            target: 'x86_64-pc-windows-msvc'
             args: ''
+
+          # Native Windows ARM64 build
+          - platform: 'windows-11-arm'
+            target: 'aarch64-pc-windows-msvc'
+            args: '--target aarch64-pc-windows-msvc --bundles nsis'
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4 
+      
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-pc-windows-msvc
 
+
+      
       - name: install wreq dependencies
+        if: runner.arch == 'X64'
         run: |
           choco install cmake -y
           choco install strawberryperl -y
