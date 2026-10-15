@@ -21,6 +21,7 @@ jobs:
     
     strategy:
       fail-fast: false
+     
       matrix:
         include:
           # Existing Windows x64 build
@@ -28,10 +29,10 @@ jobs:
             target: 'x86_64-pc-windows-msvc'
             args: ''
 
-          # Native Windows ARM64 build
+          # Windows ARM64 cross-compilation
           - platform: 'windows-latest'
-  target: 'aarch64-pc-windows-msvc'
-  args: '--target aarch64-pc-windows-msvc --bundles nsis'
+            target: 'aarch64-pc-windows-msvc'
+            args: '--target aarch64-pc-windows-msvc --bundles nsis'
 
     runs-on: ${{ matrix.platform }}
     steps:
