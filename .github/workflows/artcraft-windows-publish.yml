@@ -14,26 +14,25 @@ on:
 # This workflow creates Windows builds.
 # On each push to the release branches it will create or update a GitHub release, build your app, and upload the artifacts to the release.
 
+
 jobs:
   publish-artcraft-windows:
     permissions:
       contents: write
-    
-   
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: 'windows-latest'
-            target: 'x86_64-pc-windows-msvc'
-            args: ''
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: ""
 
-          - platform: 'windows-latest'
-            target: 'aarch64-pc-windows-msvc'
-            args: '--target aarch64-pc-windows-msvc --bundles nsis'
-
+          - platform: windows-latest
+            target: aarch64-pc-windows-msvc
+            args: "--target aarch64-pc-windows-msvc --bundles nsis"
 
     runs-on: ${{ matrix.platform }}
+
     steps:
       - uses: actions/checkout@v4 
       
